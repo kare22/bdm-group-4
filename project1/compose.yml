@@ -1,0 +1,20 @@
+
+services:
+  pyspark:
+    image: quay.io/jupyter/pyspark-notebook:spark-3.5.3 # image name and tag
+    container_name: pyspark_project1 # custom container name
+    command: >
+      bash -c "
+      pip install apache-sedona &&
+      pip install geopandas &&
+      wget https://repo1.maven.org/maven2/org/apache/sedona/sedona-spark-shaded-3.0_2.12/1.6.1/sedona-spark-shaded-3.0_2.12-1.6.1.jar -P /home/jovyan/jars/ &&
+      wget https://repo1.maven.org/maven2/org/datasyslab/geotools-wrapper/1.7.0-28.5/geotools-wrapper-1.7.0-28.5.jar -P /home/jovyan/jars/ &&
+      start-notebook.sh --NotebookApp.token=''
+      "
+    ports:
+      - "8888:8888" # Jupyter UI
+      - "4040:4040" # Spark UI. Every new context is on an incremental port (4041, 4042, etc)
+    volumes:
+      - "./mnt/:/home/jovyan/" # map a local folder to the Jupyter workspace folder
+      - "./notebook.ipynb/:/home/jovyan/notebook.ipynb" # map a local folder to the Jupyter workspace folder
+      - "../data/:/home/jovyan/data/" # map a local folder to the Jupyter workspace folder

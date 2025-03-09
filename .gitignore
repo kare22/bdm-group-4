@@ -1,0 +1,7 @@
+.presentations
+mnt
+test 
+tmp*
+.idea
+.DS_Store
+data*
