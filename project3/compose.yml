@@ -1,0 +1,17 @@
+
+services:
+  pyspark:
+    build:
+      context: .
+    container_name: pyspark_project3 # custom container name
+    command: >
+      bash -c "
+      start-notebook.sh --NotebookApp.token=''
+      "
+    ports:
+      - "8891:8888" # Jupyter UI
+      - "4040:4040" # Spark UI. Every new context is on an incremental port (4041, 4042, etc)
+    volumes:
+      - "./mnt/:/home/jovyan/" # map a local folder to the Jupyter workspace folder
+      - "./notebook.ipynb:/home/jovyan/notebook.ipynb" # map a local folder to the Jupyter workspace folder
+      - "../data/:/home/jovyan/data/" # map a local folder to the Jupyter workspace folder

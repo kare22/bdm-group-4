@@ -1,0 +1,44 @@
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    depends_on:
+      - zookeeper
+
+  pyspark-kafka:
+    image: pyspark-kafka:0.0.1 # image name and tag
+    container_name: pyspark_project2 # custom container name
+    command: >
+      bash -c "
+      pip install kafka-python &&
+      pip install apache-sedona &&
+      pip install geopandas &&
+      wget https://repo1.maven.org/maven2/org/apache/sedona/sedona-spark-shaded-3.0_2.12/1.6.1/sedona-spark-shaded-3.0_2.12-1.6.1.jar -P /home/jovyan/jars/ &&
+      wget https://repo1.maven.org/maven2/org/datasyslab/geotools-wrapper/1.7.0-28.5/geotools-wrapper-1.7.0-28.5.jar -P /home/jovyan/jars/ &&
+      start-notebook.sh --NotebookApp.token=''
+      "
+    ports:
+      - "8890:8888" # Jupyter UI
+      - "4040:4040" # Spark UI. Every new context is on an incremental port (4041, 4042, etc)
+    volumes:
+      - "./mnt/:/home/jovyan/" # map a local folder to the Jupyter workspace folder
+      - "./notebook.ipynb:/home/jovyan/notebook.ipynb"
+      - "./kafka-producer.py:/home/jovyan/kafka-producer.py"
+      - "../data/:/home/jovyan/data/" # map a local folder to the Jupyter workspace folder
+    depends_on:
+      - kafka

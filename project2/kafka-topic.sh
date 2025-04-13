@@ -1,0 +1,1 @@
+docker exec -it kafka kafka-topics.sh --create --topic taxi-trips --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1
